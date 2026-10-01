@@ -324,6 +324,8 @@ input[type=date]{min-height:46px}
 .tabs{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .card,.ls,.sl,.pf{contain:layout style}
 #lex{min-height:680px}#lgm{min-height:700px}
+.tabs{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:color-mix(in srgb,var(--bg) 94%,transparent)}
+.chap,.card{content-visibility:auto;contain-intrinsic-size:auto 600px}
 </style>
 <style>
 .ib,.ck{display:none!important}
@@ -766,7 +768,12 @@ function save(){ls.s("et21_snd",S)}
 $("mo").innerHTML=MD.map((m,i)=>`<button data-i="${i}" aria-pressed="${i===S.m}">${m.n}<small>${m.d}</small></button>`).join("");
 $("mo").onclick=e=>{const b=e.target.closest("button");if(!b)return;S.m=+b.dataset.i;save();$("mo").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));if(ac)dr.frequency.setTargetAtTime(F(-12),ac.currentTime,3)};
 $("vol").value=S.v;$("vol").oninput=e=>{S.v=+e.target.value;save();if(ac&&on)mg.gain.setTargetAtTime(vol(),ac.currentTime,.3)};
-$("pl").onclick=()=>on?stop():play();
+let manual=false;const evs=["pointerdown","mousedown","touchend","click","keydown"];
+$("pl").onclick=()=>{manual=true;on?stop():play()};
+function detach(){evs.forEach(t=>removeEventListener(t,kick,true))}
+function kick(e){if(manual){detach();return}if(e&&e.target&&e.target.closest&&e.target.closest("#pl"))return;if(!on)play();if(ac)ac.resume().then(()=>{if(ac.state==="running")detach()}).catch(()=>{})}
+evs.forEach(t=>addEventListener(t,kick,true));
+try{if(navigator.getAutoplayPolicy&&navigator.getAutoplayPolicy("audiocontext")==="allowed")play()}catch(e){}
 $("sb").onclick=()=>{const h=$("sndp").hidden=!$("sndp").hidden;$("sb").setAttribute("aria-expanded",!h)};
 document.addEventListener("visibilitychange",()=>{if(ac&&on)document.hidden?ac.suspend():ac.resume()});window.et21Stop=()=>{if(ac&&on)stop()};
 })();
@@ -792,7 +799,7 @@ for(let i=SH.length-1;i>=0;i--){const q=SH[i];q.l++;q.x+=q.vx;q.y+=q.vy;const k=
 const n=Math.hypot(q.vx,q.vy),tx=q.x-q.vx/n*q.len,ty=q.y-q.vy/n*q.len,gr=cx.createLinearGradient(q.x,q.y,tx,ty);gr.addColorStop(0,`rgba(${hc},1)`);gr.addColorStop(1,`rgba(${hc},0)`);
 cx.globalAlpha=k;cx.strokeStyle=gr;cx.lineWidth=1.6;cx.lineCap="round";cx.beginPath();cx.moveTo(q.x,q.y);cx.lineTo(tx,ty);cx.stroke();cx.fillStyle=`rgb(${hc})`;cx.beginPath();cx.arc(q.x,q.y,1.7,0,6.283);cx.fill();cx.fillStyle=col}}
 cx.globalAlpha=1;if(!rm)requestAnimationFrame(dr)}
-rs();addEventListener("resize",()=>{rs();if(rm)dr(0)});dr(0);
+addEventListener("resize",()=>{rs();if(rm)dr(0)});(window.requestIdleCallback||function(f){setTimeout(f,60)})(function(){rs();dr(0)},{timeout:400});
 /* alle Rondelle auf einer Seite */
 const hd=document.querySelector(".hd");hd.id="home";
 $("fam").before($("lgm"));["lex","lgm","fam"].forEach(i=>{$(i).hidden=false;$(i).classList.add("chap")});
@@ -900,8 +907,7 @@ addEventListener("resize",fit);addEventListener("load",fit);if(document.fonts&&d
   <h2 id="pv-t">Schön, dass du hier bist</h2>
   <p>Das ist ein kleiner Blick in dein Kartenreich. Zum Ausprobieren ist die Vorschau bewusst gesperrt: <b>Programm, Kartenlexikon, Legemethoden, Tageskarte und Familienkreis</b> warten in der vollen Version auf dich.</p>
   <p>Deine 21 Tage Transformation beginnen mit einem einzigen Schritt. Gönn dir diesen Moment für dich und sichere dir jetzt deinen Zugang.</p>
-  <!-- HIER deinen echten Kauflink eintragen (href) -->
-  <a class="pv-buy" id="pv-buy" href="mailto:cocodemershop@gmail.com?subject=Ich%20m%C3%B6chte%20die%2021%20Tage%20Transformation">Jetzt Transformation sichern ✦</a>
+  <a class="pv-buy" id="pv-buy" href="https://lebensbegleiterin.company.site/products/bucher" target="_blank" rel="noopener">Jetzt Transformation sichern ✦</a>
   <button class="pv-l" id="pv-l">Ich schaue mich erst noch um</button>
  </div>
 </div>
