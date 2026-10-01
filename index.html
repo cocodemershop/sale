@@ -451,7 +451,7 @@ html,body,img,svg{-webkit-touch-callout:none;-webkit-user-drag:none}
 
 <dialog class="lg" id="lg" aria-labelledby="lgt"><div class="lgh"><h2 id="lgt"></h2><button class="btn o" id="lgx" style="margin:0;padding:8px 18px">Schließen</button></div><div class="lgb" id="lgb"></div></dialog>
 <div class="ck" id="ck" role="region" aria-label="Cookie-Einstellungen" hidden><div class="cki" id="cki"></div></div>
-<div class="snd"><div class="sndp" id="sndp" hidden><h4>✦ Klangraum</h4><p>Sanfte Musik, die sich nie wiederholt.</p><div class="mo" id="mo"></div><label for="vol">Lautstärke</label><input type="range" id="vol" min="0" max="100"><button class="btn" id="pl">▶ Musik beginnen</button><label for="nar" class="narl">Erklär-Audio</label><audio id="nar" src="21_Tage_Tarot_als_psychologischer_Spiegel.m4a" controls preload="none" playsinline></audio></div><button class="sb" id="sb" aria-label="Klangraum öffnen" aria-expanded="false">♪</button></div>
+<div class="snd"><div class="sndp" id="sndp" hidden><h4>✦ Klangraum</h4><p>Sanfte Musik, die sich nie wiederholt.</p><div class="mo" id="mo"></div><label for="vol">Lautstärke</label><input type="range" id="vol" min="0" max="100"><button class="btn" id="pl">▶ Musik beginnen</button><label for="nar" class="narl">Erklär-Audio</label><audio id="nar" src="21_Tage_Tarot_als_psychologischer_Spiegel.m4a" controls preload="auto" playsinline></audio></div><button class="sb" id="sb" aria-label="Klangraum öffnen" aria-expanded="false">♪</button></div>
 <script>
 const TL=[["Tag 1","Du ziehst deine erste Karte und formulierst dein Ziel. Ein Anfang macht Mut."],["Tag 3","Du erkennst Bildsprache und liest Karten ohne Buch. Erste Sicherheit entsteht."],["Tag 7","Die Tageskarte wird Routine. Du merkst, welche Themen wiederkehren."],["Tag 14","Du verbindest Karten zu Geschichten und legst Dreikarten-Legungen sicher."],["Tag 21","Du legst das Keltische Kreuz und deine eigene Transformationslegung."],["Danach","Ein Ritual, das bleibt. Wie schnell Gewohnheiten fest werden, ist bei jedem anders."]];
 const MS=[["1. Es gibt keine falsche Karte","Jede Karte ist eine Einladung, genauer hinzusehen. Wenn du eine Karte „schlecht“ nennst, frag dich, was sie dir zeigen will."],["2. Du bist nicht ausgeliefert","Tarot sagt keine Zukunft an. Du entscheidest, was du mit dem Bild machst. Damit bleibst du in deiner Kraft."],["3. Kleine Schritte gewinnen","Zehn Minuten am Tag schlagen einen Marathon im Monat. Dranbleiben ist wichtiger als Perfektion."],["4. Lebe im Jetzt","Du musst nur diese eine Karte heute verstehen. Morgen kommt die nächste."]];
@@ -778,7 +778,10 @@ try{if(navigator.getAutoplayPolicy&&navigator.getAutoplayPolicy("audiocontext")=
 const nar=$("nar");let nOk=false;
 function duck(v){dk=v;if(ac&&on)mg.gain.setTargetAtTime(vol(),ac.currentTime,.8)}
 nar.addEventListener("play",()=>duck(.3));["pause","ended"].forEach(t=>nar.addEventListener(t,()=>duck(1)));
-function startNar(){if(nOk)return;const p=nar.play();if(p&&p.then)p.then(()=>{nOk=true}).catch(()=>{});else nOk=true}
+function offNar(){["pointerdown","mousedown","pointerup","touchend","click","keydown"].forEach(t=>removeEventListener(t,startNar,true))}
+function startNar(){if(nOk)return;const p=nar.play();if(p&&p.then)p.then(()=>{nOk=true;offNar()}).catch(()=>{});else{nOk=true;offNar()}}
+["pointerdown","mousedown","pointerup","touchend","click","keydown"].forEach(t=>addEventListener(t,startNar,true));
+startNar();addEventListener("load",startNar);addEventListener("pageshow",startNar);
 try{if(navigator.getAutoplayPolicy&&navigator.getAutoplayPolicy("mediaelement")==="allowed")startNar()}catch(e){}
 $("sb").onclick=()=>{const h=$("sndp").hidden=!$("sndp").hidden;$("sb").setAttribute("aria-expanded",!h)};
 document.addEventListener("visibilitychange",()=>{if(ac&&on)document.hidden?ac.suspend():ac.resume()});window.et21Stop=()=>{nar.pause();if(ac&&on)stop()};
