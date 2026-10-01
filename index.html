@@ -219,7 +219,7 @@ box-shadow:0 0 0 1px var(--sc),0 0 38px color-mix(in srgb,var(--sc) 38%,transpar
 .mo button[aria-pressed="true"]{border-color:var(--g);background:color-mix(in srgb,var(--g) 14%,transparent)}
 .mo small{display:block;color:var(--mute);font-size:.76rem}
 .sndp label{display:block;font-size:.85rem;color:var(--g);font-weight:600}.sndp input[type=range]{width:100%;accent-color:var(--g)}
-.sndp .btn{width:100%;margin-top:10px}
+.sndp .btn{width:100%;margin-top:10px}.sndp .narl{margin-top:14px}.sndp audio{width:100%;height:40px;margin-top:6px;color-scheme:dark}
 @media (prefers-reduced-motion:reduce){.sb.on{animation:none}}
 
 
@@ -451,7 +451,7 @@ html,body,img,svg{-webkit-touch-callout:none;-webkit-user-drag:none}
 
 <dialog class="lg" id="lg" aria-labelledby="lgt"><div class="lgh"><h2 id="lgt"></h2><button class="btn o" id="lgx" style="margin:0;padding:8px 18px">Schließen</button></div><div class="lgb" id="lgb"></div></dialog>
 <div class="ck" id="ck" role="region" aria-label="Cookie-Einstellungen" hidden><div class="cki" id="cki"></div></div>
-<div class="snd"><div class="sndp" id="sndp" hidden><h4>✦ Klangraum</h4><p>Sanfte Musik, die sich nie wiederholt.</p><div class="mo" id="mo"></div><label for="vol">Lautstärke</label><input type="range" id="vol" min="0" max="100"><button class="btn" id="pl">▶ Musik beginnen</button></div><button class="sb" id="sb" aria-label="Klangraum öffnen" aria-expanded="false">♪</button></div>
+<div class="snd"><div class="sndp" id="sndp" hidden><h4>✦ Klangraum</h4><p>Sanfte Musik, die sich nie wiederholt.</p><div class="mo" id="mo"></div><label for="vol">Lautstärke</label><input type="range" id="vol" min="0" max="100"><button class="btn" id="pl">▶ Musik beginnen</button><label for="nar" class="narl">Erklär-Audio</label><audio id="nar" src="21_Tage_Tarot_als_psychologischer_Spiegel.m4a" controls preload="none" playsinline></audio></div><button class="sb" id="sb" aria-label="Klangraum öffnen" aria-expanded="false">♪</button></div>
 <script>
 const TL=[["Tag 1","Du ziehst deine erste Karte und formulierst dein Ziel. Ein Anfang macht Mut."],["Tag 3","Du erkennst Bildsprache und liest Karten ohne Buch. Erste Sicherheit entsteht."],["Tag 7","Die Tageskarte wird Routine. Du merkst, welche Themen wiederkehren."],["Tag 14","Du verbindest Karten zu Geschichten und legst Dreikarten-Legungen sicher."],["Tag 21","Du legst das Keltische Kreuz und deine eigene Transformationslegung."],["Danach","Ein Ritual, das bleibt. Wie schnell Gewohnheiten fest werden, ist bei jedem anders."]];
 const MS=[["1. Es gibt keine falsche Karte","Jede Karte ist eine Einladung, genauer hinzusehen. Wenn du eine Karte „schlecht“ nennst, frag dich, was sie dir zeigen will."],["2. Du bist nicht ausgeliefert","Tarot sagt keine Zukunft an. Du entscheidest, was du mit dem Bild machst. Damit bleibst du in deiner Kraft."],["3. Kleine Schritte gewinnen","Zehn Minuten am Tag schlagen einen Marathon im Monat. Dranbleiben ist wichtiger als Perfektion."],["4. Lebe im Jetzt","Du musst nur diese eine Karte heute verstehen. Morgen kommt die nächste."]];
@@ -760,7 +760,7 @@ cv.buffer=b;wg.gain.value=.7;bus.connect(cv);cv.connect(wg);wg.connect(mg);
 dr=ac.createOscillator();const dg=ac.createGain(),lf=ac.createOscillator(),lg=ac.createGain();dr.frequency.value=F(-12);dg.gain.value=.04;lf.frequency.value=.06;lg.gain.value=.015;lf.connect(lg);lg.connect(dg.gain);dr.connect(dg);dg.connect(bus);dr.start();lf.start();
 const nb=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate),nd=nb.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
 const ns=ac.createBufferSource();ns.buffer=nb;ns.loop=true;const bp=ac.createBiquadFilter();bp.type="bandpass";bp.frequency.value=600;bp.Q.value=.7;const ng=ac.createGain(),l2=ac.createOscillator(),l2g=ac.createGain();ng.gain.value=.012;l2.frequency.value=.05;l2g.gain.value=300;l2.connect(l2g);l2g.connect(bp.frequency);ns.connect(bp);bp.connect(ng);ng.connect(bus);ns.start();l2.start()}
-const vol=()=>S.v/100*.7;
+let dk=1;const vol=()=>S.v/100*.7*dk;
 function ui(){$("pl").textContent=on?"❚❚ Pause":"▶ Musik beginnen";$("sb").classList.toggle("on",on)}
 function play(){if(!ac)init();ac.resume();on=true;mg.gain.cancelScheduledValues(ac.currentTime);mg.gain.setTargetAtTime(vol(),ac.currentTime,2);loop("p",pad,8,11);loop("b",bell,2.5,6);loop("w",bowl,20,34);ui()}
 function stop(){on=false;Object.values(tm).forEach(clearTimeout);tm={};mg.gain.setTargetAtTime(0,ac.currentTime,.8);setTimeout(()=>{if(!on)ac.suspend()},3500);ui()}
@@ -771,11 +771,17 @@ $("vol").value=S.v;$("vol").oninput=e=>{S.v=+e.target.value;save();if(ac&&on)mg.
 let manual=false;const evs=["pointerdown","mousedown","touchend","click","keydown"];
 $("pl").onclick=()=>{manual=true;on?stop():play()};
 function detach(){evs.forEach(t=>removeEventListener(t,kick,true))}
-function kick(e){if(manual){detach();return}if(e&&e.target&&e.target.closest&&e.target.closest("#pl"))return;if(!on)play();if(ac)ac.resume().then(()=>{if(ac.state==="running")detach()}).catch(()=>{})}
+function kick(e){if(manual){detach();return}if(e&&e.target&&e.target.closest&&e.target.closest("#pl"))return;startNar();if(!on)play();if(ac)ac.resume().then(()=>{if(ac.state==="running")detach()}).catch(()=>{})}
 evs.forEach(t=>addEventListener(t,kick,true));
 try{if(navigator.getAutoplayPolicy&&navigator.getAutoplayPolicy("audiocontext")==="allowed")play()}catch(e){}
+/* Erklär-Audio (m4a): startet mit der ersten Interaktion, die Klangraum-Musik läuft leise im Hintergrund weiter */
+const nar=$("nar");let nOk=false;
+function duck(v){dk=v;if(ac&&on)mg.gain.setTargetAtTime(vol(),ac.currentTime,.8)}
+nar.addEventListener("play",()=>duck(.3));["pause","ended"].forEach(t=>nar.addEventListener(t,()=>duck(1)));
+function startNar(){if(nOk)return;const p=nar.play();if(p&&p.then)p.then(()=>{nOk=true}).catch(()=>{});else nOk=true}
+try{if(navigator.getAutoplayPolicy&&navigator.getAutoplayPolicy("mediaelement")==="allowed")startNar()}catch(e){}
 $("sb").onclick=()=>{const h=$("sndp").hidden=!$("sndp").hidden;$("sb").setAttribute("aria-expanded",!h)};
-document.addEventListener("visibilitychange",()=>{if(ac&&on)document.hidden?ac.suspend():ac.resume()});window.et21Stop=()=>{if(ac&&on)stop()};
+document.addEventListener("visibilitychange",()=>{if(ac&&on)document.hidden?ac.suspend():ac.resume()});window.et21Stop=()=>{nar.pause();if(ac&&on)stop()};
 })();
 
 /* ===== EINE GROSSARTIGE WEBSEITE: Sternenhimmel, Tor, Anleitung ===== */
